@@ -1,4 +1,5 @@
 from multiprocessing.connection import Client
+from tkinter import Menu
 from xmlrpc import client
 import streamlit as st
 import numpy as np
@@ -8,83 +9,167 @@ import time
 import numpy as np
 
 st.set_page_config(page_title="Client", page_icon="🐶")
-st.title("クライアント管理")
 
 
 
-## クライアントの一覧表示 ##
+# サイドバーに登録ページへ遷移するselect配置
+
+Menu = st.sidebar.radio(
+     "メニュー",
+     ('クライアント一覧', 'クライアント登録', 'クライアント編集'))
+
+# クライアント一覧表示
+if Menu == 'クライアント一覧':
+
+    st.title("クライアント一覧")
+
+    ## データベース接続 ##
+    dbname = 'buillmen.db'
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
 
 
-# カレントディレクトリにTEST.dbがなければ、作成します。
-# すでにTEST.dbが作成されていれば、TEST.dbに接続します。
-dbname = 'buillmen.db'
-conn = sqlite3.connect(dbname)
+    # 3.テーブルのデータを取得
+    # 例では、personsテーブルデータを全件取得
+    cur.execute('SELECT * FROM Client')
 
-# 2.sqliteを操作するカーソルオブジェクトを作成
-cur = conn.cursor()
-
-# 3.テーブルのデータを取得
-# 例では、personsテーブルデータを全件取得
-cur.execute('SELECT * FROM Client')
-
-
-
-# df = pd.DataFrame(
-#     np.random.randn(50, 20),
-#     columns=('col %d' % i for i in range(20)))
-
-# st.dataframe(df)  # Same as st.write(df)
-
-
-# # テーブル表示用にデータ整形
-# Client_ID_List = []
-# client_name_List = []
-# CEO_name_List = []
-# post_code_List = []
-# address_List = []
-# tell_List = []
-# fax_List = []
-# mail_List = []
-# establish_List = []
-# capital_List = []
-# employee_List = []
-# corporate_number_List = []
-# manager_List = []
-# manager_tell_List = []
-
-# # 取得したデータを出力
-# for row in cur:
-#     st.write(row)
-#     Client_ID_List.append(row[0])
-#     client_name_List.append(row[1])
-#     CEO_name_List.append(row[2])
-#     post_code_List.append(row[3])
-#     address_List.append(row[4])
-#     tell_List.append(row[5])
-#     fax_List.append(row[6])
-#     mail_List.append(row[7])
-#     establish_List.append(row[8])
-#     capital_List.append(row[9])
-#     employee_List.append(row[10])
-#     corporate_number_List.append(row[11])
-#     manager_List.append(row[12])
-#     manager_tell_List.append(row[13])
+    # テーブル表示用にデータ整形
+    Client_ID_List = []
+    client_name_List = []
+    CEO_name_List = []
+    post_code_List = []
+    address_List = []
+    tell_List = []
+    fax_List = []
+    mail_List = []
+    establish_List = []
+    capital_List = []
+    employee_List = []
+    corporate_number_List = []
+    manager_List = []
+    manager_tell_List = []
 
 
-    
+    # 取得したデータを行ごとに整形
+    for row in cur.fetchall():
+        Client_ID_List.append(row[0])
+        client_name_List.append(row[1])
+        CEO_name_List.append(row[2])
+        post_code_List.append(row[3])
+        address_List.append(row[4])
+        tell_List.append(row[5])
+        fax_List.append(row[6])
+        mail_List.append(row[7])
+        establish_List.append(row[8])
+        capital_List.append(row[9])
+        employee_List.append(row[10])
+        corporate_number_List.append(row[11])
+        manager_List.append(row[12])
+        manager_tell_List.append(row[13])
+
+    # テーブルデータの作成
+    table_data = {
+        '顧客番号' : Client_ID_List,
+        '顧客名'   : client_name_List,
+        '代表'     : CEO_name_List,
+        '郵便番号'  : post_code_List,
+        '住所'     : address_List,
+        '電話番号'     : tell_List,
+        'FAX番号'     : fax_List,
+        'メール'     : mail_List,
+        '設立'     : establish_List,
+        '資本金'     : capital_List,
+        '雇用人数'     : employee_List,
+        '法人番号'     : corporate_number_List,
+        '担当者'     : manager_List,
+        '担当者電話'     : manager_tell_List,
+    }
+
+    dataframe = pd.DataFrame(
+        table_data,
+        index = Client_ID_List
+    )
+
+    st.dataframe(dataframe)
+
+    # 4.データベースの接続を切断
+    cur.close()
+    conn.close()
+
+
+elif Menu == 'クライアント登録':
+
+    st.title("クライアント登録")
+
+    ## データベース接続 ##
+    dbname = 'buillmen.db'
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
+    # sql = 'insert into Client (Client_ID,client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    # data = ("",client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell)
+    # sql = 'insert into Client (Client_ID,client_name) values (?,?)'
+    # data = ("3","しょうじ")
+    # cur.execute(sql, data)
+    # conn.commit()
+    # cur.close()
+    # conn.close()
+
+    # with st.form("my_form"):
+
+    #     client_name         = st.text_input('クライアント名')
+    #     CEO_name            = st.text_input('代表名')
+    #     post_code           = st.text_input('郵便番号')
+    #     address             = st.text_input('住所')
+    #     tell                = st.text_input('電話番号')
+    #     fax                 = st.text_input('FAX番号')
+    #     mail                = st.text_input('メール')
+    #     establish           = st.text_input('設立年月日')
+    #     capital             = st.text_input('資本金')
+    #     employee            = st.text_input('従業員数')
+    #     corporate_number    = st.text_input('法人番号')
+    #     manager             = st.text_input('担当者')
+    #     manager_tell        = st.text_input('担当者電話')
+
+    #     # Every form must have a submit button.
+    #     submitted = st.form_submit_button("登録")
+    #     if submitted:
+    #         st.write("登録されました")
+    #         # データ追加(レコード登録)
+    #         sql = 'insert into Client (Client_ID,client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    #         data = ("",client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell)
+            
+            
+    #         cur.execute(sql, data)
 
 
 
-# st.write(Client_ID_List)
-# st.table(df.style.highlight_max(axis=0))
+    #         # コミット
+    #         conn.commit()
 
-# 4.データベースの接続を切断
-cur.close()
-conn.close()
-
-
+    #         # 4.データベースの接続を切断
+    #         cur.close()
+    #         conn.close()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+elif Menu == 'クライアント編集':
+
+    st.title("クライアント編集")
 
 
 
@@ -132,36 +217,3 @@ conn.close()
 
 
 
-
-
-
-###### Demo #########
-
-# st.sidebar.header("")
-# st.write(
-#     """This demo illustrates a combination of plotting and animation with
-# Streamlit. We're generating a bunch of random numbers in a loop for around
-# 5 seconds. Enjoy!"""
-# )
-
-# progress_bar = st.sidebar.progress(0)
-# status_text = st.sidebar.empty()
-# last_rows = np.random.randn(1, 1)
-# chart = st.line_chart(last_rows)
-
-# for i in range(1, 101):
-#     new_rows = last_rows[-1, :] + np.random.randn(5, 1).cumsum(axis=0)
-#     status_text.text("%i%% Complete" % i)
-#     chart.add_rows(new_rows)
-#     progress_bar.progress(i)
-#     last_rows = new_rows
-#     time.sleep(0.05)
-
-# progress_bar.empty()
-
-# # Streamlit widgets automatically run the script from top to bottom. Since
-# # this button is not connected to any other logic, it just causes a plain
-# # rerun.
-# st.button("Re-run")
-
-###### Demo #########
