@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import sqlite3 
 import time
-import numpy as np
+import streamlit.components.v1 as stc
 
 st.set_page_config(page_title="Client", page_icon="🐶")
 
@@ -22,7 +22,7 @@ Menu = st.sidebar.radio(
 if Menu == 'クライアント一覧':
 
     st.title("クライアント一覧")
-
+    
     ## データベース接続 ##
     dbname = 'buillmen.db'
     conn = sqlite3.connect(dbname)
@@ -67,6 +67,8 @@ if Menu == 'クライアント一覧':
         manager_List.append(row[12])
         manager_tell_List.append(row[13])
 
+        st.write(row)
+
     # テーブルデータの作成
     table_data = {
         '顧客番号' : Client_ID_List,
@@ -92,6 +94,11 @@ if Menu == 'クライアント一覧':
 
     st.dataframe(dataframe)
 
+
+
+
+    
+
     # 4.データベースの接続を切断
     cur.close()
     conn.close()
@@ -105,64 +112,43 @@ elif Menu == 'クライアント登録':
     dbname = 'buillmen.db'
     conn = sqlite3.connect(dbname)
     cur = conn.cursor()
-    # sql = 'insert into Client (Client_ID,client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    # data = ("",client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell)
-    # sql = 'insert into Client (Client_ID,client_name) values (?,?)'
-    # data = ("3","しょうじ")
-    # cur.execute(sql, data)
-    # conn.commit()
-    # cur.close()
-    # conn.close()
 
-    # with st.form("my_form"):
-
-    #     client_name         = st.text_input('クライアント名')
-    #     CEO_name            = st.text_input('代表名')
-    #     post_code           = st.text_input('郵便番号')
-    #     address             = st.text_input('住所')
-    #     tell                = st.text_input('電話番号')
-    #     fax                 = st.text_input('FAX番号')
-    #     mail                = st.text_input('メール')
-    #     establish           = st.text_input('設立年月日')
-    #     capital             = st.text_input('資本金')
-    #     employee            = st.text_input('従業員数')
-    #     corporate_number    = st.text_input('法人番号')
-    #     manager             = st.text_input('担当者')
-    #     manager_tell        = st.text_input('担当者電話')
-
-    #     # Every form must have a submit button.
-    #     submitted = st.form_submit_button("登録")
-    #     if submitted:
-    #         st.write("登録されました")
-    #         # データ追加(レコード登録)
-    #         sql = 'insert into Client (Client_ID,client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    #         data = ("",client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell)
-            
-            
-    #         cur.execute(sql, data)
+    #DBにユーザーを登録する関数
+    def create_user():
+        cur.execute('CREATE TABLE IF NOT EXISTS Client(Client_ID INTEGER PRIMARY KEY AUTOINCREMENT,client_name TEXT,CEO_name TEXT,post_code TEXT,address TEXT,tell TEXT,fax TEXT,mail TEXT,establish TEXT,capital TEXT,employee TEXT,corporate_number TEXT,manager TEXT,manager_tell TEXT)')
+    #DBに追加したユーザーにユーザー情報を追加する関数
+    def add_user(client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell):
+        cur.execute('INSERT INTO Client(client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',(client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell))
+        conn.commit()
 
 
-
-    #         # コミット
-    #         conn.commit()
-
-    #         # 4.データベースの接続を切断
-    #         cur.close()
-    #         conn.close()
+    client_name         = st.text_input('クライアント名')
+    CEO_name            = st.text_input('代表名')
+    post_code           = st.text_input('郵便番号')
+    address             = st.text_input('住所')
+    tell                = st.text_input('電話番号')
+    fax                 = st.text_input('FAX番号')
+    mail                = st.text_input('メール')
+    establish           = st.text_input('設立年月日')
+    capital             = st.text_input('資本金')
+    employee            = st.text_input('従業員数')
+    corporate_number    = st.text_input('法人番号')
+    manager             = st.text_input('担当者')
+    manager_tell        = st.text_input('担当者電話')
 
 
 
 
+        # Every form must have a submit button.
+    submitted = st.button("登録")
+    if submitted:
+        create_user()
+        test = add_user(client_name,CEO_name,post_code,address,tell,fax,mail,establish,capital,employee,corporate_number,manager,manager_tell)
+        st.success("ユーザーの作成に成功しました")
 
-
-
-
-
-
-
-
-
-
+    # 4.データベースの接続を切断
+    cur.close()
+    conn.close()
 
 
 
